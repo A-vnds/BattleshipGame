@@ -1,0 +1,371 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+
+
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <title>BattleShip</title>
+
+
+</head>
+
+<body>
+
+
+    <div id="vue-app">
+
+
+        <div class="header">
+
+            <a href="#" class="logo"><img src="img/logo.png" class="logo-image"></a>
+            <div class="header-right">
+                <a class="active" href="/web/games.html">Dashboard</a>
+                <a v-on:click="logout">Logout</a>
+            </div>
+
+        </div>
+
+
+
+
+
+
+
+
+        <div class="wrapper" v-if="gamestate != 'Won' && gamestate != 'Tie' && gamestate != 'Lost' && gamestate != 'GameOver'">
+
+
+            <div class="host-table">
+
+                <h3>My Ships</h3>
+
+                <table id="table-one">
+                    <tr>
+                        <td></td>
+                        <td v-for="letter in letters" class="table-head">
+                            {{letter}}
+                        </td>
+                    </tr>
+                    <tr v-for="number in numbers">
+                        <td class="table-head">{{number}}</td>
+                        <td v-for="letter in letters" :id="'U'+ letter + number" @mouseover='mouseHover("U"+ letter + number)' @click="mouseClick" :class="setShipClass(letter,number)">
+                        </td>
+                    </tr>
+                </table>
+
+            </div>
+
+
+
+            <div class="opponent-table" v-if="gamestate != 'Place your Ships' ">
+
+                <h3>My Salvos</h3>
+
+                <div class="table-two">
+                    <table id="table-two">
+                        <tr>
+                            <td></td>
+                            <td v-for="letter in letters" class="table-head">
+                                {{letter}}
+                            </td>
+                        </tr>
+                        <tr v-for="number in numbers">
+                            <td class="table-head">{{number}}</td>
+                            <td v-for="letter in letters" :id="'O'+letter + number" @mouseover='salvoHover( letter, number)' :class="setSalvoClass(letter,number)" @click="salvoClick( letter, number)" @mouseleave='salvoLeave( letter, number)'>
+
+
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="salvos-wrapper" v-if="gamestate == 'Play'">
+
+                    <button v-if="selectSalvos" @click="startHover" class="myButton">Select your shots</button>
+                    <button v-if="fireSalvos" @click="addSalvos" class="myButton">Fire your shots</button>
+
+                </div>
+
+                <div v-if="gamestate == 'Wait'" class="wait-message pulse">
+                    <h5>Please wait for your opponent to play</h5>
+
+                </div>
+
+
+
+            </div>
+
+
+            <div class="ships-wrapper" v-if="gamestate == 'Place your Ships'">
+
+                <h2>Place Your Ships</h2>
+
+                <div class="drag-carrier" id="carrier" @click='shipSelector("carrier")' tabindex="1">Carrier</div>
+
+                <div class="drag-battleship" id="battleship" @click='shipSelector("battleship")' tabindex="2">Battleship</div>
+
+                <div class="drag-submarine" id="submarine" @click='shipSelector("submarine")' tabindex="3">Submarine</div>
+
+                <div class="drag-destroyer" id="destroyer" @click='shipSelector("destroyer")' tabindex="4">Destroyer</div>
+
+                <div class="drag-patrol" id="patrol" @click='shipSelector("patrol")' tabindex="5">Patrol</div>
+                </br>
+
+
+                <label for="Horizontal" class="drag-direction">Horizontal<input type="radio" v-model="direction" value="Horizontal" class="radio"></label>
+
+                <label for="Vertical" class="drag-direction">Vertical<input type="radio" v-model="direction" value="Vertical" class="radio"></label>
+
+                <div class="submit" v-show=" !fleet[0].shipLocations.includes(null) &&
+                !fleet[1].shipLocations.includes(null) && !fleet[2].shipLocations.includes(null) && !fleet[3].shipLocations.includes(null) && !fleet[4].shipLocations.includes(null)">
+                    <button @click="addShips" class="myButton">Submit!</button>
+                </div>
+
+
+
+
+
+
+            </div>
+
+
+
+        </div>
+
+
+        <div v-if="gamestate == 'Won' ">
+
+
+            <!--
+        <canvas id="canvas">
+            
+        </canvas>
+-->
+
+
+        </div>
+
+
+        <div class="wrapper">
+
+            <div class="fleet-status" v-if="gamestate == 'Play' || gamestate == 'Wait' ">
+
+                <h3>{{host}}'s Fleet</h3>
+                <table class="sunkstatus">
+                    <tr>
+                        <th>Type</th>
+                        <th>Sunk</th>
+                    </tr>
+
+                    <tr>
+                        <td>Carrier</td>
+                        <td v-if="host_sunk.carrierSunk == true" style="color: #1da81d">YES</td>
+                        <td v-if="host_sunk.carrierSunk == false" style="color: #a51717">NO</td>
+                    </tr>
+                    <td>Battleship</td>
+                    <td v-if="host_sunk.battleshipSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!host_sunk.battleshipSunk" style="color: #a51717">NO</td>
+                    </tr>
+                    <td>Submarine</td>
+                    <td v-if="host_sunk.submarineSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!host_sunk.submarineSunk" style="color: #a51717">NO</td>
+                    </tr>
+                    <td>Destroyer</td>
+                    <td v-if="host_sunk.destroyerSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!host_sunk.destroyerSunk" style="color: #a51717">NO</td>
+                    </tr>
+
+                    <td>Patrol Boat</td>
+                    <td v-if="host_sunk.patrolSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!host_sunk.patrolSunk" style="color: #a51717">NO</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+            <div class="greeting" v-if="gamestate == 'Place your Ships' || gamestate == 'Wait for your opponent to join' ">
+                <h3>{{greeting}}</h3>
+            </div>
+
+            <div class="fleet-status" v-if="gamestate == 'Play' || gamestate == 'Wait' ">
+
+                <h3>{{opponent}}'s Fleet</h3>
+                <table class="sunkstatus">
+                    <tr>
+                        <th>Type</th>
+                        <th>Sunk</th>
+                    </tr>
+
+                    <tr>
+                        <td>Carrier</td>
+                        <td v-if="enemy_sunk.carrierSunk == true" style="color: #1da81d">YES</td>
+                        <td v-if="enemy_sunk.carrierSunk == false" style="color: #a51717">NO</td>
+                    </tr>
+                    <td>Battleship</td>
+                    <td v-if="enemy_sunk.battleshipSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!enemy_sunk.battleshipSunk" style="color: #a51717">NO</td>
+                    </tr>
+                    <td>Submarine</td>
+                    <td v-if="enemy_sunk.submarineSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!enemy_sunk.submarineSunk" style="color: #a51717">NO</td>
+                    </tr>
+                    <td>Destroyer</td>
+                    <td v-if="enemy_sunk.destroyerSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!enemy_sunk.destroyerSunk" style="color: #a51717">NO</td>
+                    </tr>
+
+                    <td>Patrol Boat</td>
+                    <td v-if="enemy_sunk.patrolSunk" style="color: #1da81d">YES</td>
+                    <td v-if="!enemy_sunk.patrolSunk" style="color: #a51717">NO</td>
+                    </tr>
+
+                </table>
+
+            </div>
+
+
+        </div>
+        
+        
+      
+        <div class="wrapper" v-if="gamestate == 'Won' || gamestate == 'Lost' || gamestate == 'Tie' ">
+        
+        
+            <div class="results-img">
+                <img src="img/Won2.png" alt="Winning Image">
+
+            </div>
+
+            <div class="results-tab">
+
+
+                <h2>Get Your Results!</h2>
+                <h2>Who Won?</h2>
+                <h2>Who Lost?</h2>
+                <button class="myButton" @click="gameOver(allData)">Click Here</a></button>
+
+
+            </div>
+
+            <div class="results-img">
+                <img src="img/Won1.png" alt="Winning Image">
+
+            </div>
+
+
+        </div>
+        
+ 
+        
+
+        
+        
+       
+
+        <div class="wrapper" v-if="finale == 'Won'">
+
+
+            <div class="results-img">
+                <img src="img/Won2.png" alt="Winning Image">
+
+            </div>
+
+            <div class="results-tab">
+
+
+                <h2>Congratulations!</h2>
+                <h2>You Won</h2>
+                <h3>You Get Two Points</h3>
+                <button class="myButton"><a href="/web/games.html">Scoreboard</a></button>
+
+
+            </div>
+
+            <div class="results-img">
+                <img src="img/Won1.png" alt="Winning Image">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="wrapper" v-if="finale == 'Lost'">
+
+            <div class="results-img">
+                <img src="img/Lost1.png" alt="Image">
+
+            </div>
+
+            <div class="results-tab">
+                <h2>Oh No! No! No!</h2>
+                <h2>You Lost</h2>
+                <h3>Better Luck Next Time</h3>
+                <button class="myButton"><a href="/web/games.html">Play Again</a></button>
+
+
+
+            </div>
+
+            <div class="results-img">
+                <img src="img/Lost2.png" alt="Image">
+
+            </div>
+
+
+        </div>
+
+
+        <div class="wrapper" v-if=" finale == 'Tie'">
+
+            <div class="results-img">
+                <img src="img/Tie1.png" alt="Image">
+
+            </div>
+            
+            <div class="results-tab">
+            <h2>Oh Wow! It's a Tie</h2>
+            <h2>Well, Life is Not a Zero-Sum Game!</h2>
+            <h3>You Both Get One Point</h3>
+            <button class="myButton"><a href="/web/games.html">Play Again</a></button>
+            </div>
+       
+
+        <div class="results-img">
+            <img src="img/Tie2.png" alt="Image">
+
+        </div>
+
+
+    </div>
+    
+  
+
+
+
+
+
+
+
+    <footer>
+
+
+    </footer>
+
+
+    </div>
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.6/dist/vue.js"></script>
+
+
+
+
+    <script src="game.js"></script>
+
+</body>
+
+</html>

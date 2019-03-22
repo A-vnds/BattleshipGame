@@ -1,0 +1,158 @@
+<!DOCTYPE HTML>
+<html>
+
+
+<head>
+    <title>BattleShip</title>
+    <link rel="stylesheet" type="text/css" href="main.css">
+</head>
+
+<body>
+
+    <div id="vue-app">
+
+
+        <div class="header">
+
+            <a href="#" class="logo"><img src="img/logo.png" class="logo-image"></a>
+            <div class="header-right">
+               <div v-if="show">
+               <button v-on:click="createGame" class="myButton active">Create Game</button>
+                <button v-on:click="logout" class="myButton">Log out</button>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="wrapper" v-if="!show">
+
+            <div class="main-img">
+                <img src="img/Intro.png" alt="Image">
+            </div>
+
+            <div class="main-tab">  
+                <h2>Welcome!</h2>
+                <h3>Let's Play Battleship</h3>
+                <div class="login-wrapper">
+
+                    <div class="login-card" id="login-form">
+
+                        <div class="inputInfo"><label><input type="email" name="username" placeholder="Username" v-model="username"> </label> </div>
+
+
+                        <div class="inputInfo"><label><input type="password" name="password" placeholder="Password" v-model="password"></label></div>
+
+                        <div class="inputForms"><input type="submit" value="Login" v-on:click="login(username,password)"></div>
+
+                        <div class="inputForms"> <input type="submit" value="Sign Up!" v-on:click="register(username, password)"></div>
+
+<!--
+                        <div class="inputForms" id="logout-form">
+                        <button v-on:click="logout" class="myButton">Log out</button>
+                        </div>
+
+                        <div class="inputForms" id="create-game">
+                        <button v-on:click="createGame" class="myButton">Create Game</button>
+                        </div>
+-->
+
+
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="main-img">
+                <img src="img/Intro1.png" alt="Image">
+            </div>
+
+
+        </div>
+
+
+<div class="wrapper" v-if="show">
+              
+               <div><img src="img/Look.png" class="lookimg"></div>
+                <div class="message"><h2>Welcome back {{host}}</h2>
+                <button v-on:click="createGame" class="myButton active">Create Game</button></div>
+                <div><img src="img/Look.png" class="lookimg"></div>
+</div>
+
+
+        <div class="wrapper" v-if="show">
+
+
+           <div class="games-table">
+           <h3>Current Games</h3>
+            <ol v-for="game in gamesList">
+                <li class="list-style">
+                    <div>
+                        <a :name="game.game_id" v-bind:href=" '/web/game.html?gp=' + game.gameplayer_id" target="_blank" v-if="game.visitor != 'Join Game'">
+                            <p>
+                            {{game.host}} vs 
+                            {{game.visitor}}
+                            || Game ID: {{game.game_id}}
+                            </p>
+                        </a>
+                    </div>
+                    <a @click="joinGame(game.game_id)" v-if="game.visitor == 'Join Game'">
+                    <p>
+                        {{game.host}} vs
+                        {{game.visitor}}
+                        || Game ID: {{game.game_id}}
+                    </p>
+                    </a>
+                </li>
+            </ol>
+            </div>
+
+
+           
+           <div class="scoreboard">
+            <h3>League Table</h3>
+
+            <table class="table-container">
+                <thead>
+                    <th>Name</th>
+                    <th>Total Score</th>
+                    <th>No. Wins</th>
+                    <th>No. Losses</th>
+                    <th>No. Ties</th>
+                </thead>
+                <tbody>
+                    <tr v-for="score in scoreboard">
+                        <td>{{score.name}}</td>
+                        <td>{{score.total_score}}</td>
+                        <td>{{score.number_wins}}</td>
+                        <td>{{score.number_losses}}</td>
+                        <td>{{score.number_ties}}</td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            </div>
+            
+            
+            
+            
+</div>
+
+
+
+
+
+
+
+
+</div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+
+    <script src="games.js"></script>
+
+</body>
+
+</html>
